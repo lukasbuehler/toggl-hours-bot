@@ -5,6 +5,9 @@ import base64
 import datetime
 import json
 
+import pandas as pd
+import charts
+
 
 def _authenticate(token):
     session = requests.Session()
@@ -19,7 +22,11 @@ def _authenticate(token):
         response.raise_for_status()
         return None
 
-    return session
+    response_json = response.json()
+    user_id = response_json['id']
+    user_name = response_json['fullname']
+
+    return session, user_id, user_name
 
 
 def _get_project_name_by_project_id(session, workspace_id, project_id):
@@ -51,8 +58,6 @@ def _get_hours_today(session, time_entries=None):
     if not time_entries:
         time_entries = _get_time_entries_of_today(session)
 
-    print(time_entries)
-
     hours_by_projects = {}
 
     for time_entry in time_entries:
@@ -75,9 +80,8 @@ def _get_hours_today(session, time_entries=None):
                 start_datetime_string = time_entry["start"]
                 start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
                 hours_by_projects[project_id]["hours"] += (datetime.now - start_datetime).total_seconds() / 3600
-            
 
-    print(hours_by_projects)
+    return hours_by_projects
         
         
 
@@ -85,9 +89,35 @@ if __name__ == "__main__":
     load_dotenv()
 
     tokens = os.getenv("TOGGL_API_TOKEN", "").split(",")
+    users = []
+
+    # Dataframe that is created
+    """
+        user_id  user_name   project_name   hours
+    0   AAAAA    Lukas       HPCSE I        3.8
+    1   BBBBB    Adel        Exercise       2.1
+    """
+    d = {"user_id": [], "user_name": [], "project_name": [], "hours": []}
+    df = pd.DataFrame(data=d)
 
     for token in tokens:
-        session = _authenticate(token)
+        session, user_id, user_name = _authenticate(token)
+        users.append(user_name)
 
         if session:
-            _get_hours_today(session)
+            hours_by_projects = _get_hours_today(session)
+
+            for project_id in hours_by_projects:
+                df2 = {
+                    "user_id": user_id, 
+                    "user_name": user_name, 
+                    "project_name": hours_by_projects[project_id]["name"], 
+                    "hours": hours_by_projects[project_id]["hours"]
+                }
+
+                df = df.append(df2, ignore_index = True)
+            
+
+    
+    
+    charts.generate_stacked_bar_chart_png(df)
