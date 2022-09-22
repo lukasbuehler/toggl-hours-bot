@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 df2 = {
                     "user_id": user_id, 
                     "user_name": user_name, 
-                    "project_name": hours_by_projects[project_id]["name"], 
+                    "project_name": hours_by_projects[project_id]["name"] or "No Project", 
                     "hours": hours_by_projects[project_id]["hours"]
                 }
 
