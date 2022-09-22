@@ -40,8 +40,7 @@ def _get_time_entries_of_today(session):
     today = datetime.date.today()
     tomorrow = datetime.date.today() + datetime.timedelta(days=1)
 
-    #today_string = today.strftime('%Y-%m-%d') # Example that works 2022-09-20
-    today_string = "2022-09-20"
+    today_string = today.strftime('%Y-%m-%d') # Example that works 2022-09-20
     tomorrow_string = tomorrow.strftime('%Y-%m-%d')
 
     response = session.get("https://api.track.toggl.com/api/v9/me/"
@@ -67,19 +66,22 @@ def _get_hours_today(session, time_entries=None):
 
         project_id = time_entry["project_id"]
 
-        if project_id:
-            project_id = str(project_id)
-            if project_id not in hours_by_projects:
-                workspace_id = time_entry["workspace_id"]
-                project_name = _get_project_name_by_project_id(session, workspace_id, project_id)
-                hours_by_projects[project_id] = { "name": project_name,"workspace_id": workspace_id, "hours": 0 }
+        if not project_id:
+            project_id = 0
 
-            if time_entry["stop"]:
-                hours_by_projects[project_id]["hours"] += time_entry["duration"] / 3600
-            else:
-                start_datetime_string = time_entry["start"]
-                start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
-                hours_by_projects[project_id]["hours"] += (datetime.now - start_datetime).total_seconds() / 3600
+        project_id = str(project_id)
+        if project_id not in hours_by_projects:
+            workspace_id = time_entry["workspace_id"]
+            project_name = _get_project_name_by_project_id(session, workspace_id, project_id)
+            hours_by_projects[project_id] = { "name": project_name,"workspace_id": workspace_id, "hours": 0 }
+
+        if time_entry["stop"]:
+            hours_by_projects[project_id]["hours"] += time_entry["duration"] / 3600
+        else:
+            start_datetime_string = time_entry["start"]
+            start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
+            currently_running_duration = (datetime.datetime.now(datetime.timezone.utc) - start_datetime).total_seconds() / 3600
+            hours_by_projects[project_id]["hours"] += currently_running_duration
 
     return hours_by_projects
         
@@ -88,7 +90,7 @@ def _get_hours_today(session, time_entries=None):
 if __name__ == "__main__":
     load_dotenv()
 
-    tokens = os.getenv("TOGGL_API_TOKEN", "").split(",")
+    tokens = os.getenv("TOGGL_API_TOKENS", "").split(",")
     users = []
 
     # Dataframe that is created
