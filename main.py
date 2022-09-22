@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 import base64
 import datetime
 import json
-
 import pandas as pd
-import charts
 
+import charts
+import telegram_handler
 
 def _authenticate(token):
     session = requests.Session()
@@ -87,9 +87,7 @@ def _get_hours_today(session, time_entries=None):
         
         
 
-if __name__ == "__main__":
-    load_dotenv()
-
+def generate_image():
     tokens = os.getenv("TOGGL_API_TOKENS", "").split(",")
     users = []
 
@@ -119,7 +117,11 @@ if __name__ == "__main__":
 
                 df = df.append(df2, ignore_index = True)
             
+    return charts.generate_stacked_bar_chart_png(df)
 
-    
-    
-    charts.generate_stacked_bar_chart_png(df)
+
+if __name__ == "__main__":
+    load_dotenv()
+    telegram_handler.start_bot()
+
+    #telegram_handler.send_image_in_telegram_message()
