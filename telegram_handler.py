@@ -5,8 +5,9 @@ from main import generate_image
 
 def start_bot():
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
-    print(token)
+    
     if token:
+        print("Starting Telegram bot")
         updater = Updater(token)
         dp = updater.dispatcher
         dp.add_handler(CommandHandler('stats', _send_image))
@@ -26,20 +27,19 @@ def _get_image_bytes_from_file_path(path):
 
 
 def _send_image(update, context):
-    print(update)
+    print("Sending stats")
     chat_id = update.message.chat_id
 
+    print(f"Chat ID: {chat_id}")
     path = generate_image()
     img_bytes = _get_image_bytes_from_file_path(path)
 
     context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
     
 
-def send_image_in_telegram_message(image_path, chat_id, token=None):
-    if not bot:
-        if token:
-            _start_bot(token)
+def send_image_in_telegram_message(image_path, chat_id, token, caption):
+    updater = Updater(token)
 
     with open("bars.png", 'rb') as image:
-        bot.send_photo(chat_id=chat_id, photo=image)
+        updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
 

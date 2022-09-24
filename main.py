@@ -5,6 +5,7 @@ import base64
 import datetime
 import json
 import pandas as pd
+import schedule
 
 import charts
 import telegram_handler
@@ -85,7 +86,6 @@ def _get_hours_today(session, time_entries=None):
 
     return hours_by_projects
         
-        
 
 def generate_image():
     tokens = os.getenv("TOGGL_API_TOKENS", "").split(",")
@@ -120,8 +120,25 @@ def generate_image():
     return charts.generate_stacked_bar_chart_png(df)
 
 
+def generate_image_and_send_message():
+    path = generate_image()
+    chat_id = -736370542
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
+    telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption="Daily hours")
+
+
+def schedule_message():
+    pass
+    #schedule.every().day.at("22:00").do(generate_image_and_send_message)
+
+    # TODO start
+
 if __name__ == "__main__":
     load_dotenv()
+
+    schedule_message()
+
     telegram_handler.start_bot()
 
-    #telegram_handler.send_image_in_telegram_message()
+    
