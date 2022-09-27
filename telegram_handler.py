@@ -10,7 +10,8 @@ def start_bot():
         print("Starting Telegram bot")
         updater = Updater(token)
         dp = updater.dispatcher
-        dp.add_handler(CommandHandler('stats', _send_image))
+        dp.add_handler(CommandHandler('today', _send_hours_chart_of_today))
+        dp.add_handler(CommandHandler('week', _send_hours_chart_of_week))
         updater.start_polling()
         updater.idle()
 
@@ -26,12 +27,20 @@ def _get_image_bytes_from_file_path(path):
         return f
 
 
-def _send_image(update, context):
-    print("Sending stats")
+def _send_hours_chart_of_today(update, context):
     chat_id = update.message.chat_id
 
-    print(f"Chat ID: {chat_id}")
+    #print(f"Chat ID: {chat_id}")
     path = generate_image()
+    img_bytes = _get_image_bytes_from_file_path(path)
+
+    context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
+
+def _send_hours_chart_of_week(update, context):
+    chat_id = update.message.chat_id
+
+    #print(f"Chat ID: {chat_id}")
+    path = generate_image(is_week=True)
     img_bytes = _get_image_bytes_from_file_path(path)
 
     context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
@@ -43,3 +52,6 @@ def send_image_in_telegram_message(image_path, chat_id, token, caption):
     with open("bars.png", 'rb') as image:
         updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
 
+
+if __name__ == "__main__":
+    start_bot()

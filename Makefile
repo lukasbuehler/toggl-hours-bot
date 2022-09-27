@@ -8,3 +8,7 @@ install: requirements.txt
 .PHONY: start
 start: .env main.py
 	python3 main.py
+
+.PHONY: start-bot
+start-bot: .env telegram.py
+	python3 telegram.py
