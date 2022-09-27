@@ -37,15 +37,15 @@ def _get_project_name_by_project_id(session, workspace_id, project_id):
         return response.json()["name"]
 
 
-def _get_time_entries_of_today(session):
-    today = datetime.date.today()
-    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+def _get_time_entries(session, start_date, end_date=None):
+    if not end_date:
+        end_date = datetime.date.today() + datetime.timedelta(days=1) # date of tomorrow
 
-    today_string = today.strftime('%Y-%m-%d') # Example that works 2022-09-20
-    tomorrow_string = tomorrow.strftime('%Y-%m-%d')
+    start_date_string = start_date.strftime('%Y-%m-%d')
+    end_date_string = end_date.strftime('%Y-%m-%d')
 
     response = session.get("https://api.track.toggl.com/api/v9/me/"
-        + f"time_entries?start_date={today_string}&end_date={tomorrow_string}")
+        + f"time_entries?start_date={start_date_string}&end_date={end_date_string}")
 
     if response.status_code == requests.codes.ok:
         return response.json()
@@ -54,10 +54,7 @@ def _get_time_entries_of_today(session):
         return
 
 
-def _get_hours_today(session, time_entries=None):
-    if not time_entries:
-        time_entries = _get_time_entries_of_today(session)
-
+def _group_hours_by_project_from_entries(session, time_entries):
     hours_by_projects = {}
 
     for time_entry in time_entries:
@@ -85,7 +82,21 @@ def _get_hours_today(session, time_entries=None):
             hours_by_projects[project_id]["hours"] += currently_running_duration
 
     return hours_by_projects
-        
+
+
+def _get_hours_today(session):
+    today = datetime.date.today()
+    time_entries = _get_time_entries(session, today)
+
+    return _group_hours_by_project_from_entries(session, time_entries)
+
+
+def _get_hours_this_week(session):
+    monday = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
+    time_entries = _get_time_entries(session, monday)
+
+    return _group_hours_by_project_from_entries(session, time_entries)
+
 
 def generate_image():
     tokens = os.getenv("TOGGL_API_TOKENS", "").split(",")
@@ -98,25 +109,28 @@ def generate_image():
     1   BBBBB    Adel        Exercise       2.1
     """
     d = {"user_id": [], "user_name": [], "project_name": [], "hours": []}
-    df = pd.DataFrame(data=d)
+    obj_list = []
 
     for token in tokens:
         session, user_id, user_name = _authenticate(token)
+        print(user_name)
         users.append(user_name)
 
         if session:
             hours_by_projects = _get_hours_today(session)
+            print(hours_by_projects)
 
             for project_id in hours_by_projects:
-                df2 = {
+                obj = {
                     "user_id": user_id, 
                     "user_name": user_name, 
                     "project_name": hours_by_projects[project_id]["name"] or "No Project", 
                     "hours": hours_by_projects[project_id]["hours"]
                 }
 
-                df = df.append(df2, ignore_index = True)
+                obj_list.append(obj)
             
+    df = pd.DataFrame.from_records(obj_list)
     return charts.generate_stacked_bar_chart_png(df)
 
 
@@ -136,8 +150,9 @@ def schedule_message():
 
 if __name__ == "__main__":
     load_dotenv()
+    generate_image()
 
-    schedule_message()
+    #schedule_message()
 
     telegram_handler.start_bot()
 

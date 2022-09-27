@@ -41,5 +41,5 @@ make install
 Start the bot using 
 
 ```
-make Start
+make start
 ```
