@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-import schedule
 
 import toggl
 import charts
@@ -50,25 +49,26 @@ def generate_image(is_week=False):
 
                 obj_list.append(obj)
             
-    df = pd.DataFrame.from_records(obj_list)
-    return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
+    if len(obj_list) > 0:
+        df = pd.DataFrame.from_records(obj_list)
+        return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
 
 
 def generate_image_and_send_message():
     path = generate_image()
-    chat_id = -736370542
-    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
-    telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption="Daily hours")
+    if path:
+        chat_id = -736370542
+        token = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
+        telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption="Daily hours")
+    else: 
+        print("No entries to plot and report!")
 
-def schedule_message():
-    pass
-    #schedule.every().day.at("22:00").do(generate_image_and_send_message)
-
-    # TODO start
 
 if __name__ == "__main__":
     load_dotenv()
-    generate_image()
+    
+    #generate_image_and_send_message()
+    generate_image(True)
 

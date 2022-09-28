@@ -5,6 +5,23 @@ import datetime
 import json
 
 
+eth_projects = [
+    # Lukas and Menzi
+    "Phys. Sim. in CG", 
+    "HPCSE I", 
+    "DP and Opt. Control", 
+    "Computer Graphics", 
+    "Case Studies",
+
+    "Network Analysis",
+    "Quantenmechanik 1",
+    "Bachelor Arbeit",
+    "Introduction to Computational Physics", "Intriduction to Computational Physics",
+    
+    # Deli
+    "Lectures/Sessions",
+]
+
 def authenticate(token):
     session = requests.Session()
     #print("Token successfully loaded")
@@ -68,8 +85,13 @@ def _group_hours_by_project_from_entries(session, time_entries):
             project_name = _get_project_name_by_project_id(session, workspace_id, project_id)
             hours_by_projects[project_id] = { "name": project_name,"workspace_id": workspace_id, "hours": 0 }
 
+        multiplier = 1
+        project_name = hours_by_projects[project_id]["name"]
+        if project_name not in eth_projects:
+            multiplier = -1
+
         if time_entry["stop"]:
-            hours_by_projects[project_id]["hours"] += time_entry["duration"] / 3600
+            hours_by_projects[project_id]["hours"] += multiplier * time_entry["duration"] / 3600
         else:
             start_datetime_string = time_entry["start"]
             start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
