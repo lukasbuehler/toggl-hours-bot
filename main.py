@@ -1,4 +1,6 @@
 import os
+import sys
+
 import pandas as pd
 from dotenv import load_dotenv
 
@@ -54,7 +56,7 @@ def generate_image(is_week=False):
         return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
 
 
-def generate_image_and_send_message():
+def generate_and_send_daily_hours():
     path = generate_image()
 
     if path:
@@ -69,6 +71,7 @@ def generate_image_and_send_message():
 if __name__ == "__main__":
     load_dotenv()
     
-    #generate_image_and_send_message()
-    generate_image(True)
-
+    if str(sys.argv[1]) == "telegram":
+        telegram_handler.start_bot()
+    else:
+        generate_and_send_daily_hours()

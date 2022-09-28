@@ -51,7 +51,3 @@ def send_image_in_telegram_message(image_path, chat_id, token, caption):
 
     with open("bars.png", 'rb') as image:
         updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
-
-
-if __name__ == "__main__":
-    start_bot()
