@@ -56,8 +56,8 @@ def generate_image(is_week=False):
         return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
 
 
-def generate_and_send_daily_hours():
-    path = generate_image()
+def generate_and_send_daily_hours(is_week=False):
+    path = generate_image(is_week)
 
     if path:
         chat_id = -736370542
@@ -71,7 +71,9 @@ def generate_and_send_daily_hours():
 if __name__ == "__main__":
     load_dotenv()
     
-    if str(sys.argv[1]) == "telegram":
+    if len(sys.argv) > 1 and str(sys.argv[1]) == "telegram":
         telegram_handler.start_bot()
+    if len(sys.argv) > 1 and str(sys.argv[1]) == "week":
+        generate_and_send_daily_hours(is_week=True)
     else:
-        generate_and_send_daily_hours()
+        generate_and_send_daily_hours(is_week=False)
