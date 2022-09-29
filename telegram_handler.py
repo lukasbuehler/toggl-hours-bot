@@ -49,5 +49,5 @@ def _send_hours_chart_of_week(update, context):
 def send_image_in_telegram_message(image_path, chat_id, token, caption):
     updater = Updater(token)
 
-    with open("bars.png", 'rb') as image:
+    with open(image_path, 'rb') as image:
         updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
