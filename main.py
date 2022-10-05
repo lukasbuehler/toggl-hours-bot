@@ -40,8 +40,9 @@ def generate_hours_chart(type="today"):
     0   AAAAA    Lukas       HPCSE I        3.8
     1   BBBBB    Adel        Exercise       2.1
     """
-    d = {"user_id": [], "user_name": [], "project_name": [], "hours": []}
+    #d = {"user_id": [], "user_name": [], "project_name": [], "hours": []}
     obj_list = []
+    color_list = []
 
     for token in tokens:
         session, user_id, user_name = toggl.authenticate(token)
@@ -53,18 +54,24 @@ def generate_hours_chart(type="today"):
             #print(hours_by_projects)
 
             for project_id in hours_by_projects:
+                multiplier = 1
+                if not hours_by_projects[project_id]["is_eth"]:
+                    multiplier = -1
+
                 obj = {
                     "user_id": user_id, 
                     "user_name": user_name, 
-                    "project_name": hours_by_projects[project_id]["name"] or "No Project", 
-                    "hours": hours_by_projects[project_id]["hours"]
+                    "project_name": hours_by_projects[project_id]["name"], 
+                    "hours": multiplier * hours_by_projects[project_id]["hours"]
                 }
-
                 obj_list.append(obj)
+
+                project_color = hours_by_projects[project_id]["color"]
+                color_list.append(project_color)
             
     if len(obj_list) > 0:
         df = pd.DataFrame.from_records(obj_list)
-        return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
+        return charts.generate_stacked_bar_chart_png(df, title=title, project_color_sequence=color_list, path=path)
 
 
 def generate_and_send_hours(type="today"):

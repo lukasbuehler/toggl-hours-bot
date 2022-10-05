@@ -43,11 +43,14 @@ def authenticate(token):
     return session, user_id, user_name
 
 
-def _get_project_name_by_project_id(session, workspace_id, project_id):
+def _get_project_info_by_project_id(session, workspace_id, project_id):
     response = session.get(f"https://api.track.toggl.com/api/v9/workspaces/{workspace_id}/projects/{project_id}")
     
     if response.status_code == requests.codes.ok:
-        return response.json()["name"]
+        return response.json()
+    else:
+        response.raise_for_status
+        return None
 
 
 def _get_time_entries(session, start_date, end_date=None):
@@ -64,7 +67,6 @@ def _get_time_entries(session, start_date, end_date=None):
         return response.json()
     else:
         response.raise_for_status()
-        return
 
 
 def _group_hours_by_project_from_entries(session, time_entries):
@@ -83,16 +85,29 @@ def _group_hours_by_project_from_entries(session, time_entries):
         project_id = str(project_id)
         if project_id not in hours_by_projects:
             workspace_id = time_entry["workspace_id"]
-            project_name = _get_project_name_by_project_id(session, workspace_id, project_id)
-            hours_by_projects[project_id] = { "name": project_name,"workspace_id": workspace_id, "hours": 0 }
 
-        multiplier = 1
-        project_name = hours_by_projects[project_id]["name"]
-        if project_name not in eth_projects:
-            multiplier = -1
+            # default values
+            project_name = "No Project"
+            project_color = "grey"
+            project_is_eth = False
+
+            if project_id != str(0):
+                project_info = _get_project_info_by_project_id(session, workspace_id, project_id)
+                if project_info:
+                    project_name = project_info["name"]
+                    project_color = project_info["color"]
+                    project_is_eth = project_name in eth_projects
+
+            hours_by_projects[project_id] = { 
+                "name": project_name,
+                "workspace_id": workspace_id, 
+                "hours": 0, 
+                "color": project_color, 
+                "is_eth": project_is_eth
+            }
 
         if time_entry["stop"]:
-            hours_by_projects[project_id]["hours"] += multiplier * time_entry["duration"] / 3600
+            hours_by_projects[project_id]["hours"] += time_entry["duration"] / 3600
         else:
             start_datetime_string = time_entry["start"]
             start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
