@@ -20,6 +20,7 @@ eth_projects = [
     
     # Deli
     "Lectures/Sessions",
+    "Practice"
 ]
 
 def authenticate(token):
@@ -108,8 +109,20 @@ def get_hours_today(session):
     return _group_hours_by_project_from_entries(session, time_entries)
 
 
-def get_hours_this_week(session):
+def get_hours_week(session):
     monday = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
     time_entries = _get_time_entries(session, monday)
+
+    return _group_hours_by_project_from_entries(session, time_entries)
+
+def get_hours_month(session):
+    first_dom = datetime.date.today().replace(day=1)
+    time_entries = _get_time_entries(session, first_dom)
+
+    return _group_hours_by_project_from_entries(session, time_entries)
+
+def get_hours_semester(session):
+    semester_start_date = datetime.date.fromisoformat("2022-09-19")
+    time_entries = _get_time_entries(session, semester_start_date)
 
     return _group_hours_by_project_from_entries(session, time_entries)

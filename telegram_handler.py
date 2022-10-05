@@ -1,7 +1,7 @@
 import os
 
 from telegram.ext import Updater, CommandHandler
-from main import generate_image
+from main import generate_hours_chart
 
 def start_bot():
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -10,8 +10,10 @@ def start_bot():
         print("Starting Telegram bot")
         updater = Updater(token)
         dp = updater.dispatcher
-        dp.add_handler(CommandHandler('today', _send_hours_chart_of_today))
-        dp.add_handler(CommandHandler('week', _send_hours_chart_of_week))
+        dp.add_handler(CommandHandler('today', _send_hours_chart_today))
+        dp.add_handler(CommandHandler('week', _send_hours_chart_week))
+        dp.add_handler(CommandHandler('month', _send_hours_chart_month))
+        dp.add_handler(CommandHandler('semester', _send_hours_chart_semester))
         updater.start_polling()
         updater.idle()
 
@@ -27,23 +29,27 @@ def _get_image_bytes_from_file_path(path):
         return f
 
 
-def _send_hours_chart_of_today(update, context):
+def _send_hours_chart(hours_type, update, context):
     chat_id = update.message.chat_id
 
     #print(f"Chat ID: {chat_id}")
-    path = generate_image()
+    path = generate_hours_chart(hours_type)
     img_bytes = _get_image_bytes_from_file_path(path)
 
     context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
 
-def _send_hours_chart_of_week(update, context):
-    chat_id = update.message.chat_id
 
-    #print(f"Chat ID: {chat_id}")
-    path = generate_image(is_week=True)
-    img_bytes = _get_image_bytes_from_file_path(path)
+def _send_hours_chart_today(update, context):
+    _send_hours_chart("today", update, context)
 
-    context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
+def _send_hours_chart_week(update, context):
+    _send_hours_chart("week", update, context)
+
+def _send_hours_chart_month(update, context):
+    _send_hours_chart("month", update, context)
+
+def _send_hours_chart_semester(update, context):
+    _send_hours_chart("semester", update, context)
     
 
 def send_image_in_telegram_message(image_path, chat_id, token, caption):

@@ -9,16 +9,30 @@ import charts
 import telegram_handler
 
 
-def generate_image(is_week=False):
+def generate_hours_chart(type="today"):
     tokens = os.getenv("TOGGL_API_TOKENS", "").split(",")
     users = []
     
-    if is_week:
-        path = "charts/week_bars.png"
-        title = "Hours this Week"
-    else:
+    if type == "today":
         path = "charts/today_bars.png"
         title = "Hours Today"
+        get_hours_func = toggl.get_hours_today
+        
+    elif type == "week":
+        path = "charts/week_bars.png"
+        title = "Hours this Week"
+        get_hours_func = toggl.get_hours_week
+
+    elif type == "month":
+        path = "charts/month_bars.png"
+        title = "Hours this Month"
+        get_hours_func = toggl.get_hours_month
+
+    elif type == "semester":
+        path = "charts/semester_bars.png"
+        title = "Hours this Semester"
+        get_hours_func = toggl.get_hours_semester
+        
 
     # Dataframe that is created
     """
@@ -35,10 +49,7 @@ def generate_image(is_week=False):
         users.append(user_name)
 
         if session:
-            if is_week:
-                hours_by_projects = toggl.get_hours_this_week(session)
-            else:
-                hours_by_projects = toggl.get_hours_today(session)
+            hours_by_projects = get_hours_func(session)
             #print(hours_by_projects)
 
             for project_id in hours_by_projects:
@@ -56,8 +67,8 @@ def generate_image(is_week=False):
         return charts.generate_stacked_bar_chart_png(df, title=title, path=path)
 
 
-def generate_and_send_daily_hours(is_week=False):
-    path = generate_image(is_week)
+def generate_and_send_hours(type="today"):
+    path = generate_hours_chart(type)
 
     if path:
         chat_id = -736370542
@@ -74,6 +85,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and str(sys.argv[1]) == "telegram":
         telegram_handler.start_bot()
     if len(sys.argv) > 1 and str(sys.argv[1]) == "week":
-        generate_and_send_daily_hours(is_week=True)
+        generate_and_send_hours("week")
     else:
-        generate_and_send_daily_hours(is_week=False)
+        generate_and_send_hours("today")
