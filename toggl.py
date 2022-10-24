@@ -1,8 +1,8 @@
 import os
 import requests
 import base64
-import datetime
 import json
+import datetime
 
 
 eth_projects = [
@@ -16,11 +16,13 @@ eth_projects = [
     "Network Analysis",
     "Quantenmechanik 1",
     "Bachelor Arbeit",
-    "Introduction to Computational Physics", "Intriduction to Computational Physics",
+    "Introduction to Computational Physics",
     
     # Deli
     "Lectures/Sessions",
-    "Practice"
+    "Study",
+    "Practice",
+    "Preparation"
 ]
 
 def authenticate(token):
@@ -116,28 +118,6 @@ def _group_hours_by_project_from_entries(session, time_entries):
 
     return hours_by_projects
 
-
-def get_hours_today(session):
-    today = datetime.date.today()
-    time_entries = _get_time_entries(session, today)
-
-    return _group_hours_by_project_from_entries(session, time_entries)
-
-
-def get_hours_week(session):
-    monday = datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday())
-    time_entries = _get_time_entries(session, monday)
-
-    return _group_hours_by_project_from_entries(session, time_entries)
-
-def get_hours_month(session):
-    first_dom = datetime.date.today().replace(day=1)
-    time_entries = _get_time_entries(session, first_dom)
-
-    return _group_hours_by_project_from_entries(session, time_entries)
-
-def get_hours_semester(session):
-    semester_start_date = datetime.date.fromisoformat("2022-09-19")
-    time_entries = _get_time_entries(session, semester_start_date)
-
+def get_hours(session, start_date, end_date):
+    time_entries = _get_time_entries(session, start_date, end_date)
     return _group_hours_by_project_from_entries(session, time_entries)

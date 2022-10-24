@@ -11,8 +11,11 @@ def start_bot():
         updater = Updater(token)
         dp = updater.dispatcher
         dp.add_handler(CommandHandler('today', _send_hours_chart_today))
+        dp.add_handler(CommandHandler('yesterday', _send_hours_chart_yesterday))
         dp.add_handler(CommandHandler('week', _send_hours_chart_week))
+        dp.add_handler(CommandHandler('lastweek', _send_hours_chart_lastweek))
         dp.add_handler(CommandHandler('month', _send_hours_chart_month))
+        dp.add_handler(CommandHandler('lastmonth', _send_hours_chart_lastmonth))
         dp.add_handler(CommandHandler('semester', _send_hours_chart_semester))
         updater.start_polling()
         updater.idle()
@@ -42,11 +45,20 @@ def _send_hours_chart(hours_type, update, context):
 def _send_hours_chart_today(update, context):
     _send_hours_chart("today", update, context)
 
+def _send_hours_chart_yesterday(update, context):
+    _send_hours_chart("yesterday", update, context)
+
 def _send_hours_chart_week(update, context):
     _send_hours_chart("week", update, context)
 
+def _send_hours_chart_lastweek(update, context):
+    _send_hours_chart("lastweek", update, context)
+
 def _send_hours_chart_month(update, context):
     _send_hours_chart("month", update, context)
+
+def _send_hours_chart_lastmonth(update, context):
+    _send_hours_chart("lastmonth", update, context)
 
 def _send_hours_chart_semester(update, context):
     _send_hours_chart("semester", update, context)

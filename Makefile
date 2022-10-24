@@ -1,13 +1,13 @@
 .PHONY: all
-all: start
+all: send_daily_hours
 
 .PHONY: install
 install: requirements.txt
 	pip3 install -r requirements.txt
 
-.PHONY: start
-start: .env main.py
-	python3 main.py
+.PHONY: send_daily_hours
+send_daily_hours: .env main.py
+	python3 main.py send_daily_hours
 
 .PHONY: start-bot
 start-bot: .env main.py
