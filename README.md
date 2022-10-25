@@ -41,7 +41,13 @@ make install
 Start the bot using
 
 ```
-make start
+make start-bot
+```
+
+Add a cronjob like this to your server
+
+```
+@reboot cd ~/projects/toggl-hours-bot && make start-bot
 ```
 
 ### Daily hours
@@ -52,8 +58,10 @@ To send the daily hours to the group chat use this make target:
 make send_daily_hours
 ```
 
-Add a cronjob like this
+Add a cronjob like this:
 
 ```
 0 23 * * * cd ~/projects/toggl-hours-bot && make send-daily-hours
 ```
+
+This will send the daily hours every day at 11 pm in the timezone of the server.
