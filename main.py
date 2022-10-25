@@ -49,7 +49,7 @@ def generate_hours_chart(type="today"):
         end_date = datetime.date.today().replace(day=1)
         prev_last_dom = end_date - datetime.timedelta(days=1)
         start_date = prev_last_dom.replace(day=1)
-        title = f"Hours Today ({start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')})"
+        title = f"Hours Last Month ({start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')})"
 
     elif type == "semester":
         path = "charts/semester_bars.png"
@@ -67,6 +67,7 @@ def generate_hours_chart(type="today"):
     #d = {"user_id": [], "user_name": [], "project_name": [], "hours": []}
     obj_list = []
     color_list = []
+    added_projects = []
 
     for token in tokens:
         session, user_id, user_name = toggl.authenticate(token)
@@ -75,8 +76,6 @@ def generate_hours_chart(type="today"):
 
         if session:
             hours_by_projects = toggl.get_hours(session, start_date, end_date)
-            added_projects = []
-            #print(hours_by_projects)
 
             for project_id in hours_by_projects:
                 multiplier = 1

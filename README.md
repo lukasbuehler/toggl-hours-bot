@@ -8,7 +8,7 @@ WIP
 
 #### Toggl API
 
-After cloning this repository, duplicate the file `default.env` and name it 
+After cloning this repository, duplicate the file `default.env` and name it
 `.env`.
 
 Enter your Toggl API tokens of all the profiles that you want to get the hours
@@ -20,7 +20,7 @@ TOGGL_API_TOKENS=YOUR_TOKEN_HERE,YOUR_OTHER_TOKEN_HERE,YOUR_OTHER_OTHER_TOKEN_HE
 
 #### Telegram Bot
 
-After creating a new bot using the BotFather, copy the bot username and bot 
+After creating a new bot using the BotFather, copy the bot username and bot
 token after the corresponding env vars:
 
 ```.env
@@ -38,8 +38,22 @@ make install
 
 ## Running
 
-Start the bot using 
+Start the bot using
 
 ```
 make start
+```
+
+### Daily hours
+
+To send the daily hours to the group chat use this make target:
+
+```
+make send_daily_hours
+```
+
+Add a cronjob like this
+
+```
+0 23 * * * cd ~/projects/toggl-hours-bot && make send-daily-hours
 ```
