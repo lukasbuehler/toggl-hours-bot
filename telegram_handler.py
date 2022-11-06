@@ -28,18 +28,18 @@ def _get_image_bytes_from_file_path(path):
 
     with open(path, 'rb') as image:
         f = image.read()
+        #b = bytearray(f)
         return f
 
 
 def _send_hours_chart(hours_type, update, context):
     chat_id = update.message.chat_id
-    message_id = update.message.message_id
 
     #print(f"Chat ID: {chat_id}")
-    path = generate_hours_chart(hours_type)
+    path, data = generate_hours_chart(hours_type)
     img_bytes = _get_image_bytes_from_file_path(path)
 
-    context.bot.send_photo(chat_id=chat_id, photo=img_bytes, reply_to_message=message_id)
+    context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
 
 
 def _send_hours_chart_today(update, context):
