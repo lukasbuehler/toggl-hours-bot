@@ -5,9 +5,17 @@ all: send_daily_hours
 install: requirements.txt
 	pip3 install -r requirements.txt
 
-.PHONY: send-daily-hours
-send-daily-hours: .env main.py
-	python3 main.py send_daily_hours
+.PHONY: day-recap
+day-recap: .env main.py
+	python3 main.py day-recap
+
+.PHONY: week-recap
+week-recap: .env main.py
+	python3 main.py week-recap
+
+.PHONY: month-recap
+month-recap: .env main.py
+	python3 main.py month-recap
 
 .PHONY: start-bot
 start-bot: .env main.py

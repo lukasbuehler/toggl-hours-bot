@@ -12,7 +12,8 @@ def generate_stacked_bar_chart_png(df, title, project_color_sequence, path="bars
     barmode='relative',
     xaxis_title="",
     yaxis_title="Hours",
-    legend_title="Projects"
+    legend_title="Projects",
+    xaxis={'categoryorder':'total descending'}
 )
 
     _write_figure_to_file(fig, path)

@@ -13,6 +13,7 @@ eth_projects = [
     "Computer Graphics", 
     "Case Studies",
 
+    # Anna
     "Network Analysis",
     "Quantenmechanik 1",
     "Bachelor Arbeit",
@@ -22,7 +23,8 @@ eth_projects = [
     "Lectures/Sessions",
     "Study",
     "Practice",
-    "Preparation"
+    "Preparation",
+    "Exams"
 ]
 
 def authenticate(token):
@@ -57,7 +59,11 @@ def _get_project_info_by_project_id(session, workspace_id, project_id):
 
 def _get_time_entries(session, start_date, end_date=None):
     if not end_date:
-        end_date = datetime.date.today() + datetime.timedelta(days=1) # date of tomorrow
+        end_date = datetime.date.today()
+
+    # The Toggl API uses the end date as the last date it checks for entries
+    # threfore add a day to make it till midnight the next day
+    end_date = end_date + datetime.timedelta(days=1)
 
     start_date_string = start_date.strftime('%Y-%m-%d')
     end_date_string = end_date.strftime('%Y-%m-%d')
