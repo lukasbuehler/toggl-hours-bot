@@ -154,6 +154,7 @@ def get_running_time_entry(session):
 
         # default value
 
+        project_name = ""
         if project_id != str(0):
             project_info = _get_project_info_by_project_id(session, workspace_id, project_id)
             if project_info:

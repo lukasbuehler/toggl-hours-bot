@@ -22,10 +22,22 @@ def start_presence(session):
             if entry:
                 epoch_start_time = entry["start_time"].astimezone(pytz.timezone("Europe/Zurich")).strftime('%s')
 
+                details = ""
+                if entry["project_name"] and entry["description"]:
+                    details = f'{entry["project_name"]} - {entry["description"]}'
+                elif entry["project_name"]:
+                    details = f'{entry["project_name"]}'
+                elif entry["description"]:
+                    details = f'{entry["description"]}'
+                else:
+                    details = "No Project"
+
+                
+
                 # Update discord Rich Presence
                 RPC.update(
-                    state=f'{entry["description"]}', 
-                    details=f'Project: {entry["project_name"]}',
+                    #state=description, 
+                    details=details,
                     start=epoch_start_time,
                     large_image="toggl"
                 )
