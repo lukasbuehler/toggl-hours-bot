@@ -77,6 +77,15 @@ def _get_time_entries(session, start_date, end_date=None):
         response.raise_for_status()
 
 
+def _get_current_time_entry(session):
+    response = session.get("https://api.track.toggl.com/api/v9/me/time_entries/current")
+
+    if response.status_code == requests.codes.ok:
+        return response.json()
+    else:
+        response.raise_for_status()
+
+
 def _group_hours_by_project_from_entries(session, time_entries):
     hours_by_projects = {}
 
@@ -127,3 +136,36 @@ def _group_hours_by_project_from_entries(session, time_entries):
 def get_hours(session, start_date, end_date):
     time_entries = _get_time_entries(session, start_date, end_date)
     return _group_hours_by_project_from_entries(session, time_entries)
+
+
+def get_running_time_entry(session):
+    time_entry = _get_current_time_entry(session)
+
+    if time_entry:
+
+        project_id = time_entry["project_id"]
+        entry_description = time_entry["description"]
+
+        if not project_id:
+            project_id = 0
+
+        project_id = str(project_id)
+        workspace_id = time_entry["workspace_id"]
+
+        # default value
+
+        if project_id != str(0):
+            project_info = _get_project_info_by_project_id(session, workspace_id, project_id)
+            if project_info:
+                project_name = project_info["name"]
+
+
+        if time_entry["start"]:
+            start_datetime_string = time_entry["start"]
+            start_datetime = datetime.datetime.fromisoformat(start_datetime_string)
+
+        return {
+            "project_name": project_name,
+            "description": entry_description,
+            "start_time": start_datetime
+        }
