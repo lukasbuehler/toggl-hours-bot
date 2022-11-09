@@ -55,7 +55,7 @@ def _update_presence(session, RPC, is_connected):
             if daily_hour_info:
                 RPC.update(
                 details=daily_hour_info,
-                state="Currently: "+current_info, 
+                state="Current: "+current_info, 
                 start=epoch_start_time,
                 large_image=image_name
             )

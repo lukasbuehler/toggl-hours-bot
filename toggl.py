@@ -18,7 +18,7 @@ eth_projects = [
     # Anna
     "Network Analysis",
     "Quantenmechanik 1",
-    "Bachelor Arbeit",
+    "Bachelorarbeit",
     "Introduction to Computational Physics",
     
     # Deli
@@ -228,10 +228,12 @@ def get_current_time_entry_and_daily_hours(session):
     today_date = datetime.date.today()
     time_entries = _get_time_entries(session, today_date)
 
+    has_current_project = False
     total_eth_hours = 0
     total_hours = 0
     current_project_name = ""
     current_entry_description = ""
+    current_start_datetime = 0
 
     for time_entry in time_entries:
         hours_duration, entry_start_datetime, is_current = _get_duration_in_hours_from_entry(time_entry, today_date)
@@ -253,10 +255,11 @@ def get_current_time_entry_and_daily_hours(session):
                     current_project_name = project_info["name"]
 
         if is_current:
+            has_current_project = True
             current_entry_description = time_entry["description"]
             current_start_datetime = entry_start_datetime
 
-    if current_start_datetime:
+    if has_current_project:
         return {
             "project_name": current_project_name,
             "description": current_entry_description,
