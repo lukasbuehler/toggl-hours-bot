@@ -6,6 +6,11 @@ def _write_figure_to_file(fig, path):
     fig.write_image(path, width=700, height=500, scale=1.5)
 
 def generate_stacked_bar_chart_png(df, title, project_color_sequence, path="bars.png"):
+    # Sort the df for most ETH hours (Hours > 0)
+    eth_hours = df[df.hours > 0].groupby("user_name")["hours"].sum()
+    df["total_eth_hours"] = df.apply(axis='columns', func=lambda x: eth_hours.get(x.user_name,0))
+    sorted_user_arr = df.groupby("user_name").first().sort_values("total_eth_hours", ascending=False).index.values.tolist()#.loc[:,"user_name"]
+
     fig = px.bar(df, x="user_name", y="hours", color="project_name", text="project_name", color_discrete_sequence=project_color_sequence)
     fig.update_layout(
     title=f"{title} - Generated: {datetime.now().strftime('%d.%m.%Y %H:%M')}",
@@ -13,7 +18,7 @@ def generate_stacked_bar_chart_png(df, title, project_color_sequence, path="bars
     xaxis_title="",
     yaxis_title="Hours",
     legend_title="Projects",
-    xaxis={'categoryorder':'total descending'}
+    xaxis={'categoryorder':'array', 'categoryarray': sorted_user_arr}
     )
 
     max_hours = max(6, df[df.hours > 0].groupby("user_name")["hours"].sum().max() + 1)
