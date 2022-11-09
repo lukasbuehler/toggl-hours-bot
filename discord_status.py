@@ -24,36 +24,48 @@ def _update_presence(session, RPC, is_connected):
             return
 
     # Get current time entry
-    #entry = toggl.get_current_time_entry_and_daily_hours(session)
-    entry = toggl.get_running_time_entry(session)
-    #print(entry)
+    entry = toggl.get_current_time_entry_and_daily_hours(session)
+    #entry = toggl.get_running_time_entry(session) # (less intensive) alternative
 
     if entry:
-        epoch_start_time = entry["start_time"].astimezone(pytz.timezone("Europe/Zurich")).strftime('%s')
+        epoch_start_time = entry["start_time"].strftime('%s')
         
         image_name = "toggl"
         if entry["project_name"] in toggl.eth_projects:
             image_name = "eth"
 
-        details = "No Details"
-        state = ""
+        current_info = "No Details"
         if entry["project_name"] and entry["description"]:
-            details = f'{entry["project_name"]} - {entry["description"]}'
+            current_info = f'{entry["project_name"]} - {entry["description"]}'
         elif entry["project_name"]:
-            details = f'{entry["project_name"]}'
+            current_info = f'{entry["project_name"]}'
         elif entry["description"]:
-            details = f'{entry["description"]}'
+            current_info = f'{entry["description"]}'
+
+        daily_hour_info = ""
+        eth_hours = round(entry["eth_hours"] * 10) / 10
+        total_hours = round(entry["total_hours"] * 10) / 10
+        if total_hours > 0 or eth_hours > 0:
+            daily_hour_info = f"{eth_hours}h for ETH today (of {total_hours}h today)"
 
         # Get hours today to add to status
 
         # Update discord Rich Presence
         try:
-            RPC.update(
-                details=details,
-                #state=state, 
+            if daily_hour_info:
+                RPC.update(
+                details=daily_hour_info,
+                state="Currently: "+current_info, 
                 start=epoch_start_time,
                 large_image=image_name
             )
+            else:
+                RPC.update(
+                details=current_info,
+                start=epoch_start_time,
+                large_image=image_name
+            )
+            
         except:
             print("Lost connection to discord")
             is_connected = False
