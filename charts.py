@@ -16,8 +16,8 @@ def generate_stacked_bar_chart_png(df, title, project_color_sequence, path="bars
     xaxis={'categoryorder':'total descending'}
     )
 
-    max_hours = max(6, df[df.hours > 0].groupby("user_name")["hours"].sum().max() + 0.5)
-    min_hours = min(0, df[df.hours < 0].groupby("user_name")["hours"].sum().min() - 0.5)
+    max_hours = max(6, df[df.hours > 0].groupby("user_name")["hours"].sum().max() + 1)
+    min_hours = min(0, df[df.hours < 0].groupby("user_name")["hours"].sum().min() - 1)
     fig.update_yaxes(range=[min_hours, max_hours])
 
     _write_figure_to_file(fig, path)
