@@ -108,7 +108,7 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
         if time_entry["stop"]:
             stop_datetime = datetime.datetime.strptime(time_entry["stop"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC).astimezone()
             if stop_datetime < start_entries_time:
-                return 0, start_datetime, False
+                return 0, start_datetime, stop_datetime, False
             else:
                 # This time entry ran through midnight, handle it correctly
                 # Calculate the duration from midnight to stop time
@@ -118,12 +118,14 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
             if now > start_datetime and now < stop_datetime:
                 is_current = True
 
+            return hours_duration, start_entries_time, stop_datetime, is_current
+
         else:
             # This time entry also is still running
             hours_duration = (datetime.datetime.now(tz=pytz.timezone("Europe/Zurich")) - start_entries_time).total_seconds() / 3600
             is_current = True
 
-        return hours_duration, start_entries_time, is_current
+            return hours_duration, start_entries_time, None, is_current
 
     else:
         # The entry started after the start time, so count its duration
@@ -135,12 +137,14 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
             if now > start_datetime and now < stop_datetime:
                 is_current = True
 
+            return hours_duration, start_datetime, stop_datetime, is_current
+
         else:
             # This time entry is still running, calculate the duration yourself
             hours_duration = (datetime.datetime.now(tz=pytz.timezone("Europe/Zurich")) - start_datetime).total_seconds() / 3600
             is_current = True
 
-        return hours_duration, start_datetime, is_current
+            return hours_duration, start_datetime, None, is_current
 
     
 
@@ -150,7 +154,7 @@ def _group_hours_by_project_from_entries(session, time_entries, start_date):
 
     for time_entry in time_entries:
         
-        hours_duration, _, _ = _get_duration_in_hours_from_entry(time_entry, start_date)
+        hours_duration, _, _, _ = _get_duration_in_hours_from_entry(time_entry, start_date)
         if hours_duration <= 0:
             continue
 
@@ -233,10 +237,11 @@ def get_current_time_entry_and_daily_hours(session):
     total_hours = 0
     current_project_name = ""
     current_entry_description = ""
-    current_start_datetime = 0
+    current_start_datetime = None
+    current_end_datetime = None
 
     for time_entry in time_entries:
-        hours_duration, entry_start_datetime, is_current = _get_duration_in_hours_from_entry(time_entry, today_date)
+        hours_duration, entry_start_datetime, entry_end_datetime, is_current = _get_duration_in_hours_from_entry(time_entry, today_date)
         if hours_duration <= 0:
             continue # this entry does not contribute to today, skip the rest of this loop iteration
 
@@ -258,12 +263,14 @@ def get_current_time_entry_and_daily_hours(session):
             has_current_project = True
             current_entry_description = time_entry["description"]
             current_start_datetime = entry_start_datetime
+            current_end_datetime = entry_end_datetime
 
     if has_current_project:
         return {
             "project_name": current_project_name,
             "description": current_entry_description,
             "start_time": current_start_datetime,
+            "end_time": current_end_datetime,
             "eth_hours": total_eth_hours,
             "total_hours": total_hours,
         }

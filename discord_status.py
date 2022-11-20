@@ -24,11 +24,20 @@ def _update_presence(session, RPC, is_connected):
             return
 
     # Get current time entry
-    entry = toggl.get_current_time_entry_and_daily_hours(session)
-    #entry = toggl.get_running_time_entry(session) # (less intensive) alternative
+    try:
+        entry = toggl.get_current_time_entry_and_daily_hours(session)
+        #entry = toggl.get_running_time_entry(session) # (less intensive) alternative
+    except:
+        print("aaahh, retrying in a minute")
+        timer = threading.Timer(60.0, _update_presence, [session, RPC, is_connected])
+        timer.start()
+        return
 
     if entry:
         epoch_start_time = entry["start_time"].strftime('%s')
+        epoch_end_time = None
+        if entry["end_time"]:
+            epoch_end_time = entry["end_time"].strftime('%s')
         
         image_name = "toggl"
         if entry["project_name"] in toggl.eth_projects:
@@ -42,13 +51,13 @@ def _update_presence(session, RPC, is_connected):
         elif entry["description"]:
             current_info = f'{entry["description"]}'
 
-        daily_hour_info = ""
+        daily_hour_info = None
         eth_hours = round(entry["eth_hours"] * 10) / 10
         total_hours = round(entry["total_hours"] * 10) / 10
         if eth_hours > 0:
             daily_hour_info = f"{eth_hours}h for ETH today"
             if total_hours > eth_hours:
-                daily_hour_info += f"of {total_hours}h today"
+                daily_hour_info += f" of {total_hours}h today"
         elif total_hours > 0:
             daily_hour_info = f"{total_hours}h tracked today"
 
@@ -56,18 +65,12 @@ def _update_presence(session, RPC, is_connected):
 
         # Update discord Rich Presence
         try:
-            if daily_hour_info:
-                RPC.update(
-                details=daily_hour_info,
-                state="Current: "+current_info, 
-                start=epoch_start_time,
-                large_image=image_name
-            )
-            else:
-                RPC.update(
-                details=current_info,
-                start=epoch_start_time,
-                large_image=image_name
+            RPC.update(
+            details=daily_hour_info,
+            state="Current: "+current_info, 
+            start=epoch_start_time,
+            large_image=image_name,
+            end=epoch_end_time
             )
             
         except:
