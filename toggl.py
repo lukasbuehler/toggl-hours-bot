@@ -140,11 +140,14 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
             return hours_duration, start_datetime, stop_datetime, is_current
 
         else:
-            # This time entry is still running, calculate the duration yourself
-            hours_duration = (datetime.datetime.now(tz=pytz.timezone("Europe/Zurich")) - start_datetime).total_seconds() / 3600
-            is_current = True
+            if time_entry["duration"] != 0:
+                # This time entry is still running, calculate the duration yourself
+                hours_duration = (datetime.datetime.now(tz=pytz.timezone("Europe/Zurich")) - start_datetime).total_seconds() / 3600
+                is_current = True
+                return hours_duration, start_datetime, None, is_current
+            else:
+                return 0, None, None, False
 
-            return hours_duration, start_datetime, None, is_current
 
     
 
@@ -157,6 +160,7 @@ def _group_hours_by_project_from_entries(session, time_entries, start_date):
         hours_duration, _, _, _ = _get_duration_in_hours_from_entry(time_entry, start_date)
         if hours_duration <= 0:
             continue
+
 
         project_id = time_entry["project_id"]
 
