@@ -10,8 +10,14 @@ import charts
 import telegram_handler
 import motivation 
 
+def _get_start_and_end_date_from_type_string(type_string="today") -> (datetime.date, datetime.date, str, str): 
+    """
+    A simple helper function that translates the command strings to python 
+    datetime dates and other necessairy variables.
 
-def _get_start_and_end_date_from_type_string(type_string="today"): 
+    Returns: start_date (datetime.date), end_date ...
+    """
+
     if type_string == "today":
         path = "charts/today_bars.png"
         start_date = datetime.date.today()
@@ -91,6 +97,7 @@ def get_hours_object_list(type_string="today"):
             "week_target_hours": 36,
             "motivation_strategy": "roast"
         }
+        hours = 0
 
         if not session:
             print("get_hours_object_list(): The session is invalid")
