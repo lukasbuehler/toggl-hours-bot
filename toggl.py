@@ -193,12 +193,14 @@ def _group_hours_by_project_from_entries(session, time_entries, start_date):
 
         hours_by_projects[project_id]["hours"] += hours_duration
 
+    #print(hours_by_projects)
     return hours_by_projects
 
 
 
 def get_hours(session, start_date, end_date):
     time_entries = _get_time_entries(session, start_date, end_date)
+    #print(time_entries)
     return _group_hours_by_project_from_entries(session, time_entries, start_date)
 
 

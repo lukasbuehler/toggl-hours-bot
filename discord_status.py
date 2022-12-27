@@ -55,11 +55,11 @@ def _update_presence(session, RPC, is_connected):
         eth_hours = round(entry["eth_hours"] * 10) / 10
         total_hours = round(entry["total_hours"] * 10) / 10
         if eth_hours > 0:
-            daily_hour_info = f"{eth_hours}h for ETH today"
+            daily_hour_info = f"Total: {eth_hours}h for ETH today"
             if total_hours > eth_hours:
-                daily_hour_info += f" of {total_hours}h today"
+                daily_hour_info += f" of {total_hours}h tracked"
         elif total_hours > 0:
-            daily_hour_info = f"{total_hours}h tracked today"
+            daily_hour_info = f"Total: {total_hours}h tracked today"
 
         # Get hours today to add to status
 

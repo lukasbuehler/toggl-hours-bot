@@ -202,7 +202,10 @@ def recap_week():
 
     text = motivation.make_week_recap_caption(week_data)
 
-    telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=text)
+    message_id = telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=text)
+
+    if message_id:
+        telegram_handler.pin_message(token, chat_id, message_id)
 
 
 def recap_month():

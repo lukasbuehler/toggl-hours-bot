@@ -32,14 +32,16 @@ def _get_image_bytes_from_file_path(path):
         return f
 
 
-def _send_hours_chart(hours_type, update, context):
+def _send_hours_chart(hours_type, update, context) -> str:
     chat_id = update.message.chat_id
 
     #print(f"Chat ID: {chat_id}")
     path, data = generate_hours_chart(hours_type)
     img_bytes = _get_image_bytes_from_file_path(path)
 
-    context.bot.send_photo(chat_id=chat_id, photo=img_bytes)
+    message = context.bot.send_photo(chat_id=chat_id, photo=img_bytes, reply_to_message_id=update.message.id)
+
+    return message.id
 
 
 def _send_hours_chart_today(update, context):
@@ -64,8 +66,22 @@ def _send_hours_chart_semester(update, context):
     _send_hours_chart("semester", update, context)
     
 
-def send_image_in_telegram_message(image_path, chat_id, token, caption):
+def send_image_in_telegram_message(image_path, chat_id, token, caption) -> str:
+    """
+    Send an image with a caption from a local path to a specified chat.
+    
+    Returns the message id of the message that was sent.
+    """
     updater = Updater(token)
 
     with open(image_path, 'rb') as image:
-        updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
+        message = updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
+        return message.message_id
+
+    return ""
+
+
+def pin_message(token, chat_id, message_id):
+    updater = Updater(token)
+
+    updater.bot.pin_chat_message(chat_id=chat_id, message_id=message_id, disable_notification=True)
