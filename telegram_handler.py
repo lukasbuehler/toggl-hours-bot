@@ -39,9 +39,9 @@ def _send_hours_chart(hours_type, update, context) -> str:
     path, data = generate_hours_chart(hours_type)
     img_bytes = _get_image_bytes_from_file_path(path)
 
-    message = context.bot.send_photo(chat_id=chat_id, photo=img_bytes, reply_to_message_id=update.message.id)
+    message = context.bot.send_photo(chat_id=chat_id, photo=img_bytes, reply_to_message_id=update.message.message_id)
 
-    return message.id
+    return message.message_id
 
 
 def _send_hours_chart_today(update, context):
