@@ -14,14 +14,14 @@ eth_projects = [
     "DP and Opt. Control", 
     "Computer Graphics", 
     "Case Studies",
-    "Lernplanung"
+    "Lernplanung",
 
     # Anna
     "Network Analysis",
     "Quantenmechanik 1",
     "Bachelorarbeit",
     "Introduction to Computational Physics",
-    "Organisation"
+    "Organisation",
     
     # Deli
     "Lectures/Sessions",
