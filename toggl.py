@@ -154,10 +154,15 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
     
 
 
-def _group_hours_by_project_from_entries(session, time_entries, start_date):
+def _group_hours_by_project_from_entries(session, time_entries, start_date, no_future=True):
     hours_by_projects = {}
 
     for time_entry in time_entries:
+
+        # No future
+        start_time = datetime.datetime.fromisoformat(time_entry["start"]).astimezone()
+        if start_time > datetime.datetime.now().astimezone():
+            continue
         
         hours_duration, _, _, _ = _get_duration_in_hours_from_entry(time_entry, start_date)
         if hours_duration <= 0:
@@ -200,10 +205,10 @@ def _group_hours_by_project_from_entries(session, time_entries, start_date):
 
 
 
-def get_hours(session, start_date, end_date):
+def get_hours(session, start_date, end_date, no_future=True):
     time_entries = _get_time_entries(session, start_date, end_date)
     #print(time_entries)
-    return _group_hours_by_project_from_entries(session, time_entries, start_date)
+    return _group_hours_by_project_from_entries(session, time_entries, start_date, no_future=no_future)
 
 
 def get_running_time_entry(session):

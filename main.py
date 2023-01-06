@@ -102,7 +102,7 @@ def get_hours_object_list(type_string="today"):
         if not session:
             print("get_hours_object_list(): The session is invalid")
 
-        hours_by_projects = toggl.get_hours(session, start_date, end_date)
+        hours_by_projects = toggl.get_hours(session, start_date, end_date, no_future=True)
 
         for project_id in hours_by_projects:
             hours = hours_by_projects[project_id]["hours"]
