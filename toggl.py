@@ -108,7 +108,17 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
 
     if start_datetime < start_entries_time:
         if time_entry["stop"]:
-            stop_datetime = datetime.datetime.strptime(time_entry["stop"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC).astimezone()
+
+            # TODO move to function
+            stop_datetime = None
+            try:
+                stop_datetime = datetime.datetime.fromisoformat(time_entry["stop"]).astimezone()
+            except:
+                pass
+
+            if not stop_datetime:
+                stop_datetime = datetime.datetime.strptime(time_entry["stop"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC).astimezone()
+
             if stop_datetime < start_entries_time:
                 return 0, start_datetime, stop_datetime, False
             else:
@@ -135,7 +145,17 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
             hours_duration = time_entry["duration"] / 3600
 
             now = datetime.datetime.now().astimezone()
-            stop_datetime = datetime.datetime.strptime(time_entry["stop"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC).astimezone()
+            
+            # TODO move to function
+            stop_datetime = None
+            try:
+                stop_datetime = datetime.datetime.fromisoformat(time_entry["stop"]).astimezone()
+            except:
+                pass
+
+            if not stop_datetime:
+                stop_datetime = datetime.datetime.strptime(time_entry["stop"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC).astimezone()
+
             if now > start_datetime and now < stop_datetime:
                 is_current = True
 
