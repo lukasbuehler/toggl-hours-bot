@@ -1,6 +1,6 @@
 import operator
 
-participants = ["Lukas", "Adeliuz", "Simon Menzi", "Anna Hutter"]
+participants = ["Lukas", "Deli", "Simon Menzi", "Anna Hutter"]
 
 
 def _get_users_over_target(users):

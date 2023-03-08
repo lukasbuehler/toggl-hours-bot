@@ -5,3 +5,4 @@ kaleido
 pandas
 python-telegram-bot
 schedule
+pypresence # for discord status

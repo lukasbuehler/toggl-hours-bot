@@ -7,28 +7,9 @@ import datetime
 import pytz
 
 
-eth_projects = [
-    # Lukas and Menzi
-    "Phys. Sim. in CG", 
-    "HPCSE I", 
-    "DP and Opt. Control", 
-    "Computer Graphics", 
-    "Case Studies",
-    "Lernplanung",
-
-    # Anna
-    "Network Analysis",
-    "Quantenmechanik 1",
-    "Bachelorarbeit",
-    "Introduction to Computational Physics",
-    "Organisation",
-    
-    # Deli
-    "Lectures/Sessions",
-    "Study",
-    "Practice",
-    "Preparation",
-    "Exams"
+eth_tags = [
+    "Studium",
+    "ETH"
 ]
 
 LOCAL_TIMEZONE_STR = datetime.datetime.now().astimezone().tzname()
@@ -208,7 +189,12 @@ def _group_hours_by_project_from_entries(session, time_entries, start_date, no_f
                 if project_info:
                     project_name = project_info["name"]
                     project_color = project_info["color"]
-                    project_is_eth = project_name in eth_projects
+                    tags = time_entry["tags"]
+
+                    for eth_tag in eth_tags:
+                        if eth_tag in tags:
+                            project_is_eth = True
+                            break
 
             hours_by_projects[project_id] = { 
                 "name": project_name,

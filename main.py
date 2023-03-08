@@ -57,8 +57,8 @@ def _get_start_and_end_date_from_type_string(type_string="today") -> (datetime.d
 
     elif type_string == "semester":
         path = "charts/semester_bars.png"
-        start_date = datetime.date.fromisoformat("2022-09-19")
-        end_date = datetime.date.today()
+        start_date = datetime.datetime(2022, 9, 19)
+        end_date = datetime.datetime(2022, 9, 19)
         title = f"Hours this Semester ({start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')})"
 
     return start_date, end_date, title, path
