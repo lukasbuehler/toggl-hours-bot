@@ -2,16 +2,28 @@ import os
 import sys
 import asyncio
 
+import logging
+import traceback
+import json
+import html
+
 from dotenv import load_dotenv
 
 from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.constants import ParseMode
 
 from main import generate_hours_chart
 
+# Enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
 def start_bot():
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
-    
+
     if token:
         print("Starting Telegram bot")
         app = ApplicationBuilder().token(token).build()
@@ -24,7 +36,41 @@ def start_bot():
         app.add_handler(CommandHandler('lastmonth', _send_hours_chart_lastmonth))
         app.add_handler(CommandHandler('semester', _send_hours_chart_semester))
 
+        app.add_error_handler(error_handler)
+
         app.run_polling()
+
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = os.getenv("CHAT_ID", "")
+
+    if chat_id:
+        """Log the error and send a telegram message to notify the developer"""
+
+        logger.error("Exception while handling an update:", exc_info=context.error)
+
+        # traceback.format_exception returns the usual python message about an exception, but as a
+        # list of strings rather than a single string, so we have to join them together.
+        tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+        tb_string = "".join(tb_list)
+
+        # Build the message with some markup and additional information about what happened.
+        # You might need to add some logic to deal with messages longer than the 4096 character limit.
+        update_str = update.to_dict() if isinstance(update, Update) else str(update)
+        message = (
+            f"An exception was raised while handling an update\n"
+            f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
+            "</pre>\n\n"
+            f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
+            f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
+            f"<pre>{html.escape(tb_string)}</pre>"
+        )
+
+        # Finally, send the message
+        await context.bot.send_message(
+            chat_id=chat_id, text=message, parse_mode=ParseMode.HTML
+        )
+
 
 def _get_image_bytes_from_file_path(path):
     if not path:
