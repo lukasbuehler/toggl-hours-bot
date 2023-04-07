@@ -12,7 +12,7 @@ eth_tags = [
     "ETH"
 ]
 
-LOCAL_TIMEZONE_STR = datetime.datetime.now().astimezone().tzname()
+timezone = pytz.timezone("Europe/Zurich")
 
 def authenticate(token):
     session = requests.Session()
@@ -85,7 +85,7 @@ def _get_duration_in_hours_from_entry(time_entry, start_date):
     is_current = False # Wether this entry is the one currently active, (either it's running or we are inside it)
 
     start_datetime = datetime.datetime.fromisoformat(time_entry["start"]).astimezone()
-    start_entries_time = pytz.timezone(LOCAL_TIMEZONE_STR).localize(datetime.datetime.fromordinal(start_date.toordinal()))
+    start_entries_time = timezone.localize(datetime.datetime.fromordinal(start_date.toordinal()))
 
     if start_datetime < start_entries_time:
         if time_entry["stop"]:

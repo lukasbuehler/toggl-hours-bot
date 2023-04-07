@@ -1,6 +1,7 @@
 import os
 
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Application, CommandHandler
+from telegram import Bot
 from main import generate_hours_chart
 
 def start_bot():
@@ -8,7 +9,7 @@ def start_bot():
     
     if token:
         print("Starting Telegram bot")
-        updater = Updater(token)
+        updater = Application(token)
         dp = updater.dispatcher
         dp.add_handler(CommandHandler('today', _send_hours_chart_today))
         dp.add_handler(CommandHandler('yesterday', _send_hours_chart_yesterday))
@@ -72,11 +73,13 @@ def send_image_in_telegram_message(image_path, chat_id, token, caption) -> str:
     
     Returns the message id of the message that was sent.
     """
-    updater = Updater(token)
-
+    bot = Bot(token)
+    
     with open(image_path, 'rb') as image:
-        message = updater.bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
+        message = await bot.send_photo(chat_id=chat_id, photo=image, caption=caption)
         return message.message_id
+        
+    await bot.shutdown()
 
     return ""
 
@@ -85,3 +88,10 @@ def pin_message(token, chat_id, message_id):
     updater = Updater(token)
 
     updater.bot.pin_chat_message(chat_id=chat_id, message_id=message_id, disable_notification=True)
+
+if __name__ == "__main__":
+    load_dotenv()
+    
+    # start telegram bot
+    if len(sys.argv) > 1 and str(sys.argv[1]) == "start":
+        start_bot()
