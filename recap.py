@@ -1,4 +1,11 @@
-import telegram
+import os
+import sys
+
+from dotenv import load_dotenv
+
+import telegram_handler
+import motivation
+from main import generate_hours_chart, get_hours_object_list
 
 def generate_and_send_hours(_type="today"):
     path, _ = generate_hours_chart(_type)
@@ -8,7 +15,7 @@ def generate_and_send_hours(_type="today"):
         token = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
         if chat_id and token:
-            telegram.send_image_in_telegram_message(path, chat_id, token, caption=f"Hours for {_type}")
+            telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=f"Hours for {_type}")
 
     else: 
         print("No entries to plot and report!")
@@ -32,7 +39,7 @@ def recap_day():
 
     text = motivation.make_day_recap_caption(today_data, week_data)
 
-    telegram.send_image_in_telegram_message(path, chat_id, token, caption=text)
+    telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=text)
 
 def recap_week():
     path, week_data = generate_hours_chart("week")
@@ -50,10 +57,10 @@ def recap_week():
 
     text = motivation.make_week_recap_caption(week_data)
 
-    message_id = telegram.send_image_in_telegram_message(path, chat_id, token, caption=text)
+    message_id = telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=text)
 
     if message_id:
-        telegram.pin_message(token, chat_id, message_id)
+        telegram_handler.pin_message(token, chat_id, message_id)
 
 
 def recap_month():
@@ -68,7 +75,7 @@ def recap_month():
         token = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
         if chat_id and token:
-            telegram.send_image_in_telegram_message(path, chat_id, token, caption=f"Hours for this month")
+            telegram_handler.send_image_in_telegram_message(path, chat_id, token, caption=f"Hours for this month")
         else:
             print("Month recap: Chat ID or token invalid")
 
@@ -80,7 +87,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Recaps
-    elif len(sys.argv) > 1 and str(sys.argv[1]) == "day-recap":
+    if len(sys.argv) > 1 and str(sys.argv[1]) == "day-recap":
         recap_day()
         
     elif len(sys.argv) > 1 and str(sys.argv[1]) == "week-recap":

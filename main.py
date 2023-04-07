@@ -152,7 +152,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Unrecognized command
-    elif len(sys.argv) > 1:
+    if len(sys.argv) > 1:
         chart_type = str(sys.argv[1])
         generate_hours_chart(chart_type)
         

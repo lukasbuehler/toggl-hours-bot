@@ -18,5 +18,5 @@ month-recap: .env recap.py
 	python3 recap.py month-recap
 
 .PHONY: start-bot
-start-bot: .env telegram.py
-	python3 telegram.py start
+start-bot: .env telegram_handler.py
+	python3 telegram_handler.py start
