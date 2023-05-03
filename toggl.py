@@ -258,6 +258,7 @@ def get_current_time_entry_and_daily_hours(session):
     current_entry_description = ""
     current_start_datetime = None
     current_end_datetime = None
+    current_tag = None
 
     for time_entry in time_entries:
         hours_duration, entry_start_datetime, entry_end_datetime, is_current = _get_duration_in_hours_from_entry(time_entry, today_date)
@@ -268,12 +269,18 @@ def get_current_time_entry_and_daily_hours(session):
 
         project_id = time_entry["project_id"] or 0
         workspace_id = time_entry["workspace_id"]
+        tags = time_entry["tags"]
+        
+        
 
         if project_id != 0:
             project_info = _get_project_info_by_project_id(session, workspace_id, project_id)
             if project_info:
-                if project_info["name"] in eth_projects:
-                    total_eth_hours += hours_duration
+                for eth_tag in eth_tags:
+                    if eth_tag in tags:
+                        total_eth_hours += hours_duration
+                        break
+
                 
                 if is_current:
                     current_project_name = project_info["name"]
@@ -284,6 +291,11 @@ def get_current_time_entry_and_daily_hours(session):
             current_start_datetime = entry_start_datetime
             current_end_datetime = entry_end_datetime
 
+            if tags and len(tags) > 0:
+                current_tag = tags[0]
+            else:
+                current_tag = None
+
     if has_current_project:
         return {
             "project_name": current_project_name,
@@ -292,6 +304,7 @@ def get_current_time_entry_and_daily_hours(session):
             "end_time": current_end_datetime,
             "eth_hours": total_eth_hours,
             "total_hours": total_hours,
+            "tag": current_tag
         }
 
     return
