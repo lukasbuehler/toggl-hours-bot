@@ -1,5 +1,5 @@
 .PHONY: all
-all: strat-bot
+all: start-bot
 
 .PHONY: install
 install: requirements.txt
