@@ -29,6 +29,7 @@ def start_bot():
         app = ApplicationBuilder().token(token).build()
 
         app.add_handler(CommandHandler('today', _send_hours_chart_today))
+        app.add_handler(CommandHandler('day', _send_hours_chart_today))
         app.add_handler(CommandHandler('yesterday', _send_hours_chart_yesterday))
         app.add_handler(CommandHandler('week', _send_hours_chart_week))
         app.add_handler(CommandHandler('lastweek', _send_hours_chart_lastweek))
