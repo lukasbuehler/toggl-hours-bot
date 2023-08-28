@@ -20,7 +20,7 @@ TOGGL_API_TOKENS=YOUR_TOKEN_HERE,YOUR_OTHER_TOKEN_HERE,YOUR_OTHER_OTHER_TOKEN_HE
 
 #### Telegram Bot
 
-After creating a new bot using the BotFather, copy the bot username and bot
+After creating a new bot using the [BotFather](https://core.telegram.org/bots/tutorial), copy the bot username and bot
 token after the corresponding env vars:
 
 ```.env

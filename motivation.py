@@ -1,7 +1,6 @@
 import operator
 
-participants = ["Lukas", "Deli", "Simon Menzi", "Anna Hutter"]
-
+participants = os.getenv("NAMES", "").split(",")
 
 def _get_users_over_target(users):
     users_over_target = []
