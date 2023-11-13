@@ -6,3 +6,4 @@ pandas
 python-telegram-bot
 schedule
 pypresence # for discord status
+httpx==0.24.1

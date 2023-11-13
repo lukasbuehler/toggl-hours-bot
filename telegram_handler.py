@@ -13,7 +13,7 @@ from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram.constants import ParseMode
 
-from main import generate_hours_chart
+from main import generate_toggl_chart
 
 # Enable logging
 logging.basicConfig(
@@ -37,6 +37,10 @@ def start_bot():
         app.add_handler(CommandHandler("month", _send_hours_chart_month))
         app.add_handler(CommandHandler("lastmonth", _send_hours_chart_lastmonth))
         app.add_handler(CommandHandler("semester", _send_hours_chart_semester))
+
+        app.add_handler(
+            CommandHandler("schedule", _send_schedule_chart_handler, has_args=1)
+        )
 
         # app.add_error_handler(error_handler) # dsabled for now
 
@@ -91,7 +95,29 @@ async def _send_hours_chart(hours_type, update, context) -> str:
     chat_id = update.message.chat_id
 
     # print(f"Chat ID: {chat_id}")
-    path, data = generate_hours_chart(hours_type)
+    path, _ = generate_toggl_chart("hours", hours_type)
+    img_bytes = _get_image_bytes_from_file_path(path)
+
+    message = await context.bot.send_photo(
+        chat_id=chat_id, photo=img_bytes, reply_to_message_id=update.message.message_id
+    )
+
+    return message.message_id
+
+
+async def _send_schedule_chart(update, context) -> str:
+    chat_id = update.message.chat_id
+
+    schedule_type = "today"
+    if len(context.args) > 0:
+        schedule_type = context.args[0]
+
+    print("hi")
+
+    # print(f"Chat ID: {chat_id}")
+    path, _ = generate_toggl_chart(
+        chart_type_string="schedule", time_type_string=schedule_type
+    )
     img_bytes = _get_image_bytes_from_file_path(path)
 
     message = await context.bot.send_photo(
@@ -127,6 +153,10 @@ async def _send_hours_chart_lastmonth(update, context):
 
 async def _send_hours_chart_semester(update, context):
     await _send_hours_chart("semester", update, context)
+
+
+async def _send_schedule_chart_handler(update, context):
+    await _send_schedule_chart(update, context)
 
 
 def send_image_in_telegram_message(image_path, chat_id, token, caption) -> None:
