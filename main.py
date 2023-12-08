@@ -119,13 +119,16 @@ def get_hours_object_list(type_string="today"):
 
         for project_id in hours_by_projects:
             hours = hours_by_projects[project_id]["hours"]
-            multiplier = 1
+            multiplier = -1
 
-            if not hours_by_projects[project_id]["is_eth"]:
-                multiplier = -1
-                user_hours["other_hours"] += hours
-            else:
+            if hours_by_projects[project_id]["is_eth"]:
+                multiplier = 1
                 user_hours["eth_hours"] += hours
+            elif hours_by_projects[project_id]["is_work"]:
+                multiplier = 0.75
+                user_hours["eth_hours"] += hours
+            else:
+                user_hours["other_hours"] += hours
 
             project_name = hours_by_projects[project_id]["name"]
             obj = {

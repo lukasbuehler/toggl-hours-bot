@@ -8,6 +8,7 @@ import pytz
 
 
 eth_tags = ["Studium", "ETH"]
+work_tags = ["Arbeit", "Work", "work"]
 
 timezone = pytz.timezone("Europe/Zurich")
 
@@ -212,6 +213,7 @@ def _group_hours_by_project_from_entries(
             project_name = "No Project"
             project_color = "grey"
             project_is_eth = False
+            project_is_work = False
 
             if project_id != str(0):
                 project_info = _get_project_info_by_project_id(
@@ -227,12 +229,18 @@ def _group_hours_by_project_from_entries(
                             project_is_eth = True
                             break
 
+                    for work_tag in work_tags:
+                        if work_tag in tags:
+                            project_is_work = True
+                            break
+
             hours_by_projects[project_id] = {
                 "name": project_name,
                 "workspace_id": workspace_id,
                 "hours": 0,
                 "color": project_color,
                 "is_eth": project_is_eth,
+                "is_work": project_is_work,
             }
 
         hours_by_projects[project_id]["hours"] += hours_duration
